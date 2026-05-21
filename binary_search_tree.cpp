@@ -1,11 +1,14 @@
 
 
 #include "binary_search_tree.h"
-#include "milestone4.h"
+#include "milestone5.h"
 #include <algorithm>
 #include <queue>
 
-BinarySearchTree::BinarySearchTree() { root = nullptr; }
+BinarySearchTree::BinarySearchTree()
+{
+    root = nullptr;
+}
 
 BinarySearchTree::~BinarySearchTree()
 {
@@ -13,13 +16,82 @@ BinarySearchTree::~BinarySearchTree()
 }
 
 /**
+ * This block of code was assisted with Codex
+ *
+ * @brief prints all tree nodes whose keys are between given params. This block of code was assisted with Codex
+ *
+ * @param    low			the lower bound (inclusive) of the range to print
+ * @param	high		the higher bound (inclusive) of the range to print
+ *
+ * @return nothing
+ */
+void BinarySearchTree::printRange(int low, int high)
+{
+    printRangeHelper(root, low, high);
+}
+
+/**
+ * This block of code was assisted with Codex
+ *
+ * @brief Recursively prints tree nodes whose keys are within the given range.
+ *
+ * @param node The current tree node being checked.
+ * @param low The lower bound of the key range, inclusive.
+ * @param high The upper bound of the key range, inclusive.
+ */
+void BinarySearchTree::printRangeHelper(TreeNode *node, int low, int high)
+{
+    if (node == nullptr)
+    {
+        return;
+    }
+
+    if (node->key > low)
+    {
+        printRangeHelper(node->left, low, high);
+    }
+
+    if (node->key >= low && node->key <= high)
+    {
+        printNodeFromTree(node);
+    }
+
+    if (node->key < high)
+    {
+        printRangeHelper(node->right, low, high);
+    }
+}
+
+/**
+ * @brief Helper function for recursive count for getNumberOfTreeNodes
+ *
+ * @param node a pointer to node from which to begin recursive count
+ */
+int getNodeCount(TreeNode *node)
+{
+    if (node != nullptr)
+    {
+        int left = getNodeCount(node->left);
+        int right = getNodeCount(node->right);
+
+        return 1 + left + right;
+    }
+    return 0;
+}
+
+/**
  * @brief Adds a node with specifed to key
  *
  * @param key The key to be added to the tree
  */
-void BinarySearchTree::addToTree(int key)
+void BinarySearchTree::addToTree(int key, DllNode *newNode) // come back ot this
 {
-    TreeNode *node = new TreeNode(key);
+    TreeNode *node = new TreeNode(key, newNode);
+    if (isEmpty())
+    {
+        root = node;
+        return;
+    }
     TreeNode *curr = root;
 
     if (curr != nullptr)
@@ -81,6 +153,7 @@ bool BinarySearchTree::removeNode(int key)
                 if (curr == root)
                 {
                     delete root;
+                    root = nullptr;
                     return true;
                 }
                 if (parent->right == curr)
@@ -88,14 +161,33 @@ bool BinarySearchTree::removeNode(int key)
 
                     parent->right = nullptr;
                     delete curr;
+                    curr = nullptr;
                     return true;
                 }
                 else if (parent->left == curr)
                 {
                     parent->left = nullptr;
                     delete curr;
+                    curr = nullptr;
                     return true;
                 }
+            }
+
+            if (curr == root)
+            {
+                TreeNode *oldRoot = root;
+
+                if (root->left == nullptr)
+                {
+                    root = root->right;
+                }
+                else
+                {
+                    root = root->left;
+                }
+
+                delete oldRoot;
+                return true;
             }
 
             // ============================================================
@@ -109,12 +201,14 @@ bool BinarySearchTree::removeNode(int key)
                 {
                     parent->left = curr->left;
                     delete curr;
+                    curr = nullptr;
                     return true;
                 }
                 if (parent->right == curr)
                 {
                     parent->right = curr->left;
                     delete curr;
+                    curr = nullptr;
                     return true;
                 }
             }
@@ -125,12 +219,14 @@ bool BinarySearchTree::removeNode(int key)
                 {
                     parent->left = curr->right;
                     delete curr;
+                    curr = nullptr;
                     return true;
                 }
                 if (parent->right == curr)
                 {
                     parent->right = curr->right;
                     delete curr;
+                    curr = nullptr;
                     return true;
                 }
             }
@@ -149,6 +245,7 @@ bool BinarySearchTree::removeNode(int key)
             curr->key = node->key;
             parent->left = nullptr;
             delete node;
+            node = nullptr;
             return true;
         }
         else if (curr->key > key)
@@ -188,23 +285,6 @@ int BinarySearchTree::getHeightOfTree() const
 int BinarySearchTree::getNumberOfTreeNodes() const
 {
     return getNodeCount(root);
-}
-
-/**
- * @brief Helper function for recursive count for getNumberOfTreeNodes
- *
- * @param node a pointer to node from which to begin recursive count
- */
-int BinarySearchTree::getNodeCount(TreeNode *node) const
-{
-    if (node != nullptr)
-    {
-        int left = getNodeCount(node->left);
-        int right = getNodeCount(node->right);
-
-        return 1 + left + right;
-    }
-    return 0;
 }
 
 /**
@@ -250,12 +330,7 @@ TreeNode *BinarySearchTree::getRoot() const { return root; }
  */
 bool BinarySearchTree::isEmpty() const
 {
-    if (root == nullptr)
-    {
-        return true;
-    }
-
-    return false;
+    return root == nullptr;
 }
 
 /**
@@ -282,6 +357,7 @@ void BinarySearchTree::deleteTree(TreeNode *node)
     {
         deleteTree(node->right);
         deleteTree(node->left);
+        node = nullptr;
         delete node;
     }
 }
@@ -308,8 +384,9 @@ void BinarySearchTree::printNodeFromTree(TreeNode *node) const
  */
 void BinarySearchTree::printInOrder() const
 {
-    logToFileAndConsole("Performing In-order traversal");
+    logToFileAndConsole("\nPerforming in-order traversal");
     printInOrderHelper(root);
+    logToFileAndConsole("End of binary search tree");
 }
 
 /**
@@ -445,4 +522,33 @@ int BinarySearchTree::getHeight(TreeNode *node) const
         return 1 + std::max(leftHeight, rightHeight);
     }
     return 0;
+}
+
+/**
+ * @brief Performs an reverse traversal of the tree and prints the nodes.
+ *
+ * Reverse traversal visits the right subtree, the node, and then the left subtree.
+ */
+void BinarySearchTree::printReverseOrder() const
+{
+    logToFileAndConsole("\nPerforming reverse-order traversal");
+    printReverseOrderHelper(root);
+    logToFileAndConsole("End of binary search tree");
+}
+
+/**
+ * @brief Helper function for recursive reverse in-order traversal.
+ *
+ * This function is called recursively to perform an in-order traversal starting from the given node.
+ *
+ * @param node A pointer to the node from which to begin the in-order traversal.
+ */
+void BinarySearchTree::printReverseOrderHelper(TreeNode *node) const
+{
+    if (node != nullptr)
+    {
+        printReverseOrderHelper(node->right);
+        printNodeFromTree(node);
+        printReverseOrderHelper(node->left);
+    }
 }

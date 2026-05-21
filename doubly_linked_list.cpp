@@ -4,11 +4,12 @@
  *   it is the FIFO list of the cache manager
  *
  * 4/25/2026 - Initial creation and comments
- * 4/26/2026 - finished all the method implementations 
- *  
+ * 4/26/2026 - finished all the method implementations
+ *
  */
 
 #include "doubly_linked_list.h"
+#include "milestone5.h"
 
 /**
  *  DoublyLinkedList
@@ -20,6 +21,7 @@ DoublyLinkedList::DoublyLinkedList()
 {
     head = nullptr;
     tail = nullptr;
+    size = 0;
 }
 
 /**
@@ -148,7 +150,7 @@ void DoublyLinkedList::remove(int key)
                 }
                 else
                 {
-                    removeHeaderNode();
+                    head = cur->next;
                 }
                 if (cur->next != nullptr)
                 {
@@ -156,7 +158,7 @@ void DoublyLinkedList::remove(int key)
                 }
                 else
                 {
-                    removeTailNode();
+                    tail = cur->prev;
                 }
                 delete cur;
                 size--;
@@ -180,7 +182,7 @@ void DoublyLinkedList::remove(int key)
 void DoublyLinkedList::removeHeaderNode()
 {
     DllNode *cur = head;
-    if (!isEmpty)
+    if (!isEmpty())
     {
         if (head->next == nullptr)
         {
@@ -189,6 +191,7 @@ void DoublyLinkedList::removeHeaderNode()
         else
         {
             head = head->next;
+            head->prev = nullptr;
         }
         size--;
         delete cur;
@@ -218,6 +221,7 @@ void DoublyLinkedList::removeTailNode()
         else
         {
             tail = tail->prev;
+            tail->next = nullptr;
         }
         delete cur;
         size--;
@@ -343,16 +347,21 @@ void DoublyLinkedList::printList()
 {
     DllNode *current = head;
 
-    logToFileAndConsole("\nHere are the FIFO List contents:");
+    logToFileAndConsole("\nHere are the FIFO List contents: ");
 
     while (current != nullptr)
     {
+        logToFileAndConsole("FIFO Node contents-> Key: " + std::to_string(current->key) +
+                            ", fullName: " + current->fullName +
+                            ", address: " + current->address +
+                            ", city: " + current->city +
+                            ", state: " + current->state +
+                            ", zip: " + current->zip + " ");
 
-        current->printNode();
         current = current->next;
     }
 
-    logToFileAndConsole("End of List");
+    logToFileAndConsole("End of FIFO List");
 }
 
 /**
@@ -371,5 +380,5 @@ void DoublyLinkedList::reversePrintList()
         current = current->prev;
     }
 
-    logToFileAndConsole("End of List");
+    logToFileAndConsole("End of FIFO List");
 }

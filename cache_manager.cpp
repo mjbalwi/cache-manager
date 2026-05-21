@@ -7,7 +7,7 @@
  */
 
 #include "cache_manager.h"
-#include "milestone3.h"
+#include "milestone5.h"
 
 /**
  * @brief Returns a pointer to the internal hash table.
@@ -28,6 +28,21 @@ DoublyLinkedList *CacheManager::getList()
 }
 
 /**
+ *
+ * getBst
+ *
+ * Method to return the BST
+ *
+ * @param    none
+ *
+ * @return	the BST
+ */
+BinarySearchTree *CacheManager::getBst()
+{
+    return binarySearchTree;
+}
+
+/**
  * @brief Gets the current number of items in the cache.
  * @return Number of items in the cache.
  */
@@ -42,7 +57,7 @@ int CacheManager::getSize()
  */
 bool CacheManager::isEmpty()
 {
-    return hashTable->isEmpty();
+    return getSize() == 0;
 }
 
 /**
@@ -53,7 +68,6 @@ bool CacheManager::isEmpty()
  */
 bool CacheManager::add(int curKey, DllNode *myNode)
 {
-    // add to FIFO list
 
     if (getSize() >= getMaxCacheSize())
     {
@@ -61,6 +75,7 @@ bool CacheManager::add(int curKey, DllNode *myNode)
         if (doublyLinkedList->tail != nullptr)
         {
             hashTable->remove(doublyLinkedList->tail->key);
+            binarySearchTree->removeNode(doublyLinkedList->tail->key);
             doublyLinkedList->removeTailNode();
         }
     }
@@ -71,6 +86,7 @@ bool CacheManager::add(int curKey, DllNode *myNode)
     myHashNode->next = nullptr;
     myHashNode->prev = nullptr;
     hashTable->add(curKey, myHashNode);
+    binarySearchTree->addToTree(curKey, myNode);
 
     return true;
 }
@@ -89,6 +105,7 @@ bool CacheManager::remove(int curKey)
 
     hashTable->remove(curKey);
     doublyLinkedList->remove(curKey);
+    binarySearchTree->removeNode(curKey);
 
     return true;
 }
@@ -106,7 +123,11 @@ void CacheManager::clear()
     {
         doublyLinkedList->clear();
     }
-    
+
+    if (binarySearchTree != nullptr)
+    {
+        binarySearchTree->clear();
+    }
 }
 
 /**
@@ -153,4 +174,45 @@ void CacheManager::printCache()
     logToFileAndConsole("\nPrinting out the cache contents");
     doublyLinkedList->printList();
     hashTable->printTable();
+    binarySearchTree->printInOrder();
+    binarySearchTree->printReverseOrder();
+    logToFileAndConsole("\nEnd of cache contents\n");
+}
+
+/**
+ *
+ * This block of code was assisted with Codex
+ *
+ * Method to traverse and print out the cache information given a low and high value.
+ *
+ * @param    low			the lower bound (inclusive) of the range to print
+ * @param	high		the higher bound (inclusive) of the range to print
+ *
+ * @return   nothing, but prints out the keys for the cache between low and high
+ */
+void CacheManager::printRange(int low, int high)
+{
+    binarySearchTree->printRange(low, high);
+}
+
+/**
+ *
+ * printSort
+ *
+ * Method to print out the cache information in sorted order
+ *
+ * @param    ascending	true, if output is to be in ascending order, false for descending order
+ *
+ * @return   nothing, but prints out the keys for the cache in sorted order
+ */
+void CacheManager::printSort(bool ascending)
+{
+    if (ascending)
+    {
+        binarySearchTree->printInOrder();
+    }
+    else
+    {
+        binarySearchTree->printReverseOrder();
+    }
 }
